@@ -11,6 +11,7 @@ lines = pyperclip.paste().split('\n')
 bitrates = []
 files = []
 results = []
+currentFile = ''
 
 for l in lines:
     fileScan = filenameRegex.search(l)
@@ -20,42 +21,36 @@ for l in lines:
         currentFile = fileScan.group(1)
         currentBitrate = fileScan.group(2)
         continue
-    resultScan = resultRegex.search(l)
-    if resultScan != None:
-        # group(1) : x.xxxx
-        #print(currentFile)
-        #print(currentBitrate)
-        #print(resultScan.group(1))
-        files.append(currentFile)
-        bitrates.append(currentBitrate)
-        m = ResultData(currentFile, currentBitrate, resultScan.group(1))
-        results.append(m)
+    if currentFile != '':
+        resultScan = resultRegex.search(l)
+        if resultScan != None:
+            # group(1) : x.xxxx
+            files.append(currentFile)
+            bitrates.append(currentBitrate)
+            m = ResultData(currentFile, currentBitrate, resultScan.group(1))
+            results.append(m)
+            print(m)
+            currentFile = ''
+            currentBitrate = ''
 
 bitrates = list(set(bitrates))
 bitrates.sort()
 files = list(set(files))
 files.sort()
 
-#print(files)
-#print(bitrates)
-#print(results)
 print(bitrates)
 for f in files:
-    #print(f)
-    #print(bitrates)
     resultRow = []
     for b in bitrates:
         found = False
         for r in results:
             if (r.file==f and r.bitrate==b):
                 if (found==True):
-                    print("#### DUPLICATED data!")
+                    print("#### DUPLICATED data! ####")
                 found = True
-                #print('### ', f, b, r.result)
                 resultRow.append(r.result)
         if (found==False):
-            resultRow.append('NULL')
-            #print('### ', f, b, 'NULL')
+            resultRow.append('0')
     resultRow.append(f)
     print(resultRow)
 
